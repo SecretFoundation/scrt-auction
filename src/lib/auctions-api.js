@@ -77,7 +77,9 @@ export class AuctionsApi {
         if(auctionState == "active") {
             return (await this.scrtClient.queryContract(this.factoryAddress, {"list_active_auctions":{}})).list_active_auctions.active;
         } else if(auctionState == "closed") {
-            return (await this.scrtClient.queryContract(this.factoryAddress, {"list_closed_auctions":{}})).list_closed_auctions.closed;
+            const closedAuctions = (await this.scrtClient.queryContract(this.factoryAddress, {"list_closed_auctions":{}})).list_closed_auctions.closed;
+            console.log(closedAuctions);
+            return closedAuctions
         }
     }
     

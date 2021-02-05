@@ -53,15 +53,19 @@ export default {
                 auction.closed = false;
             }
             if(status == "closed") {
-                if(auction.winning_bid) {
+                auction.endsAt = new Date(rawction.timestamp * 1000);
+                if(rawction.winning_bid) {
                     auction.winning = {
-                        amount: auction.winning_bid,
-                        timestamp: auction.timestamp,
-                    }
+                        denom: rawction.pair.split("-")[1],
+                        decimals: rawction.bid_decimals,
+                        decimalAmount: tokens2Decimal(rawction.winning_bid, rawction.bid_decimals),
+                        amount: rawction.winning_bid,
+                    };
                 }
                 auction.closed = true;
             }
-
+            console.log(status);
+            console.log(auction);
             return auction;
         }
         Vue.use(Vuex);
@@ -69,6 +73,7 @@ export default {
               namespaced: true,
               state: {
                   auctions: [],
+                  closedAuctions: [],
                   auctionsFilter: {
                     sellToken: "",
                     bidToken: "",
@@ -92,6 +97,9 @@ export default {
                     return (auctionAddress) => {
                         return state.auctions.find(auction => auction.address == auctionAddress);
                     }
+                },
+                closedAuctions: state => {
+                    return state.closedAuctions;
                 },
                 // Since filter and sorting is done in the client, this is performed by a getter instead
                 // of a dispatcher storing a plain list of search results filtered and ordered in the server
@@ -151,6 +159,9 @@ export default {
                 updateAuctions: (state, auctions) => {
                     state.auctions = auctions;
                 },
+                updateClosedAuctions: (state, closedAuctions) => {
+                    state.closedAuctions = closedAuctions;
+                },
                 updateAuctionsFilter: (state, auctionsFilter) => {
                     state.auctionsFilter = auctionsFilter;
                 },
@@ -165,6 +176,13 @@ export default {
                     }) || [];
                     
                     commit("updateAuctions", activeAuctions);
+                },
+                updateClosedAuctions: async ({ commit }) => {
+                    const closedAuctions = (await auctionsApi.listAuctions("closed"))?.map(auction => {
+                        return transformAuction(auction, "closed");
+                    }) || [];
+                    
+                    commit("updateClosedAuctions", closedAuctions);
                 },
                 // If the server was the one doing the filtering and sorting the API call
                 // would be made here and results stored in the state (through a mutation of course)
@@ -181,12 +199,18 @@ export default {
 
         Vue.prototype.$auctions.getAuction = Vue.prototype.$store.getters['$auctions/getAuction'];
 
+        Vue.prototype.$auctions.closedAuctions = Vue.prototype.$store.getters['$auctions/closedAuctions'];
+
         Vue.prototype.$auctions.emojiHash = (label) => {
             return arrayHash(label, emojis);
         };
 
         Vue.prototype.$auctions.updateAuctions = async () => {
             Vue.prototype.$store.dispatch('$auctions/updateAuctions');
+        };
+
+        Vue.prototype.$auctions.updateClosedAuctions = async () => {
+            Vue.prototype.$store.dispatch('$auctions/updateClosedAuctions');
         };
 
         Vue.prototype.$auctions.updateAuctionsFilter = async (auctionsFilter) => {

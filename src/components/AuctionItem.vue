@@ -21,11 +21,11 @@
       <dt>Asking price</dt>
       <dd class="auction__asking-price">
         <token-amount :amount="auction.price" :decimals="auction.bid.decimals" :denom="auction.bid.denom"></token-amount>
-        <span v-if="auction.sell.decimalAmount != 1"> per token </span><br><span v-if="auction.sell.decimalAmount != 1"><small>({{ auction.bid.decimalMinimum}} {{auction.bid.denom}})</small></span>
+        <span v-if="auction.sell.decimalAmount != 1"> per token </span><br /><span v-if="auction.sell.decimalAmount != 1"><small>({{ auction.bid.decimalMinimum}} {{auction.bid.denom}})</small></span>
       </dd>
     </dl>
 
-    <dl class="auction__closing-time">
+    <dl class="auction__closing-time" v-if="targetClose">
       <dt>Target Close</dt>
       <dd :class="isEnded ? 'ended': ''">{{ targetClose }}</dd>
     </dl>
@@ -34,7 +34,7 @@
     <dl class="auction__winner" v-if="auction.winning">
       <dt>Winning Bid</dt>
       <dd>
-        <token-amount :amount="auction.winning.decimalAmount" :decimals="auction.bid.decimals" :denom="auction.bid.decimalAmount"></token-amount>
+        <token-amount :amount="auction.winning.decimalAmount" :decimals="auction.winning.decimals" :denom="auction.winning.denom"></token-amount>
       </dd>
     </dl>
     <slot></slot>

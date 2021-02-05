@@ -94,8 +94,15 @@ export default {
         }
     },
     created() {
-        this.refreshWallet();
         this.$auctions.updateAuctions();
+    },
+    watch: {
+        userAddress(newValue, oldValue) {
+            if(newValue) {
+                console.log(newValue);
+                this.refreshWallet();
+            }
+        },
     },
     computed: {
         auctionsFilter() {
@@ -117,7 +124,6 @@ export default {
         },
         async refreshWallet() {
             let aWallet = this.$vkeys.list(this.userAddress);
-            console.log(this.userAddress);
             console.log(aWallet);//await this.$auctions.getWallet();
             /*let entryAddress = "";
             let info = {};
